@@ -1,0 +1,180 @@
+CREATE DATABASE library_management_system;
+
+USE library_management_system;
+
+-- Users table
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    full_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    address TEXT,
+    user_type ENUM('admin', 'librarian', 'member') NOT NULL DEFAULT 'member',
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Books table
+CREATE TABLE books (
+    book_id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    isbn VARCHAR(20) NOT NULL UNIQUE,
+    publisher VARCHAR(100),
+    publication_year INT,
+    category VARCHAR(50),
+    description TEXT,
+    quantity INT NOT NULL DEFAULT 1,
+    available_quantity INT NOT NULL DEFAULT 1,
+    shelf_location VARCHAR(50),
+    cover_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Transactions table
+CREATE TABLE transactions (
+    transaction_id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT NOT NULL,
+    user_id INT NOT NULL,
+    issue_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    return_date DATE,
+    fine_amount DECIMAL(10,2) DEFAULT 0.00,
+    status ENUM('issued', 'returned', 'overdue') NOT NULL DEFAULT 'issued',
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Reservations table
+CREATE TABLE reservations (
+    reservation_id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT NOT NULL,
+    user_id INT NOT NULL,
+    reservation_date DATE NOT NULL,
+    status ENUM('pending', 'fulfilled', 'cancelled') NOT NULL DEFAULT 'pending',
+    FOREIGN KEY (book_id) REFERENCES books(book_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Fines table
+CREATE TABLE fines (
+    fine_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    transaction_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    reason VARCHAR(255),
+    status ENUM('pending', 'paid') NOT NULL DEFAULT 'pending',
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (transaction_id) REFERENCES transactions(transaction_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+-- Insert sample users (10 users - 1 admin, 2 librarians, 7 members)
+INSERT INTO users (username, password, email, full_name, phone, address, user_type, status) VALUES
+-- Admin
+('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@library.com', 'Library Admin', '555-0101', '123 Admin St', 'admin', 'active'),
+
+-- Librarians
+('librarian1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'librarian1@library.com', 'Sarah Johnson', '555-0202', '456 Library Ave', 'librarian', 'active'),
+('librarian2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'librarian2@library.com', 'Michael Chen', '555-0303', '789 Book Lane', 'librarian', 'active'),
+
+-- Members
+('member1', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member1@email.com', 'Emily Wilson', '555-0404', '101 Reader Rd', 'member', 'active'),
+('member2', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member2@email.com', 'David Brown', '555-0505', '202 Bookworm St', 'member', 'active'),
+('member3', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member3@email.com', 'Jessica Lee', '555-0606', '303 Chapter Ave', 'member', 'active'),
+('member4', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member4@email.com', 'Robert Garcia', '555-0707', '404 Page Dr', 'member', 'active'),
+('member5', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member5@email.com', 'Amanda Taylor', '555-0808', '505 Novel Way', 'member', 'active'),
+('member6', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member6@email.com', 'Daniel Martinez', '555-0909', '606 Story Blvd', 'member', 'active'),
+('member7', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member7@email.com', 'Jennifer Davis', '555-1010', '707 Literature Ct', 'member', 'inactive');
+
+-- Insert sample books (50 books as previously provided)
+-- [Previous 50 books INSERT statement would go here]
+
+-- Insert sample transactions (20 transactions)
+INSERT INTO transactions (book_id, user_id, issue_date, due_date, return_date, fine_amount, status) VALUES
+-- Currently issued books
+(1, 4, DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_ADD(CURDATE(), INTERVAL 9 DAY), NULL, 0.00, 'issued'),
+(3, 5, DATE_SUB(CURDATE(), INTERVAL 3 DAY), DATE_ADD(CURDATE(), INTERVAL 11 DAY), NULL, 0.00, 'issued'),
+(7, 6, DATE_SUB(CURDATE(), INTERVAL 1 DAY), DATE_ADD(CURDATE(), INTERVAL 13 DAY), NULL, 0.00, 'issued'),
+(12, 7, DATE_SUB(CURDATE(), INTERVAL 7 DAY), DATE_ADD(CURDATE(), INTERVAL 7 DAY), NULL, 0.00, 'issued'),
+(15, 8, DATE_SUB(CURDATE(), INTERVAL 2 DAY), DATE_ADD(CURDATE(), INTERVAL 12 DAY), NULL, 0.00, 'issued'),
+
+-- Overdue books
+(2, 4, DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY), NULL, 6.00, 'overdue'),
+(5, 5, DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 4 DAY), NULL, 4.00, 'overdue'),
+(9, 6, DATE_SUB(CURDATE(), INTERVAL 15 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY), NULL, 1.00, 'overdue'),
+
+-- Returned books (on time)
+(4, 4, DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_SUB(CURDATE(), INTERVAL 16 DAY), DATE_SUB(CURDATE(), INTERVAL 16 DAY), 0.00, 'returned'),
+(6, 5, DATE_SUB(CURDATE(), INTERVAL 28 DAY), DATE_SUB(CURDATE(), INTERVAL 14 DAY), DATE_SUB(CURDATE(), INTERVAL 14 DAY), 0.00, 'returned'),
+(8, 6, DATE_SUB(CURDATE(), INTERVAL 25 DAY), DATE_SUB(CURDATE(), INTERVAL 11 DAY), DATE_SUB(CURDATE(), INTERVAL 11 DAY), 0.00, 'returned'),
+
+-- Returned books (late with fines)
+(10, 7, DATE_SUB(CURDATE(), INTERVAL 22 DAY), DATE_SUB(CURDATE(), INTERVAL 8 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY), 2.00, 'returned'),
+(11, 8, DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY), DATE_SUB(CURDATE(), INTERVAL 3 DAY), 3.00, 'returned'),
+(13, 4, DATE_SUB(CURDATE(), INTERVAL 18 DAY), DATE_SUB(CURDATE(), INTERVAL 4 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY), 3.00, 'returned'),
+
+-- Older transactions
+(14, 5, '2023-01-15', '2023-01-29', '2023-01-28', 0.00, 'returned'),
+(16, 6, '2023-02-10', '2023-02-24', '2023-02-23', 0.00, 'returned'),
+(17, 7, '2023-03-05', '2023-03-19', '2023-03-20', 1.00, 'returned'),
+(18, 8, '2023-04-01', '2023-04-15', '2023-04-14', 0.00, 'returned'),
+(19, 4, '2023-05-12', '2023-05-26', '2023-05-25', 0.00, 'returned'),
+(20, 5, '2023-06-07', '2023-06-21', '2023-06-22', 1.00, 'returned');
+
+-- Insert sample reservations (10 reservations)
+INSERT INTO reservations (book_id, user_id, reservation_date, status) VALUES
+-- Pending reservations
+(21, 4, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 'pending'),
+(22, 5, DATE_SUB(CURDATE(), INTERVAL 1 DAY), 'pending'),
+(23, 6, CURDATE(), 'pending'),
+
+-- Fulfilled reservations
+(24, 7, DATE_SUB(CURDATE(), INTERVAL 10 DAY), 'fulfilled'),
+(25, 8, DATE_SUB(CURDATE(), INTERVAL 8 DAY), 'fulfilled'),
+(26, 4, DATE_SUB(CURDATE(), INTERVAL 6 DAY), 'fulfilled'),
+
+-- Cancelled reservations
+(27, 5, DATE_SUB(CURDATE(), INTERVAL 5 DAY), 'cancelled'),
+(28, 6, DATE_SUB(CURDATE(), INTERVAL 4 DAY), 'cancelled'),
+(29, 7, DATE_SUB(CURDATE(), INTERVAL 3 DAY), 'cancelled'),
+(30, 8, DATE_SUB(CURDATE(), INTERVAL 2 DAY), 'cancelled');
+
+-- Insert sample fines (8 fines)
+INSERT INTO fines (user_id, transaction_id, amount, reason, status) VALUES
+-- Unpaid fines
+(4, 6, 6.00, 'Overdue fine for 6 days', 'pending'),
+(5, 7, 4.00, 'Overdue fine for 4 days', 'pending'),
+(6, 8, 1.00, 'Overdue fine for 1 day', 'pending'),
+(7, 11, 2.00, 'Overdue fine for 2 days', 'pending'),
+(8, 12, 3.00, 'Overdue fine for 3 days', 'pending'),
+
+-- Paid fines
+(4, 13, 3.00, 'Overdue fine for 3 days', 'paid'),
+(6, 17, 1.00, 'Overdue fine for 1 day', 'paid'),
+(5, 20, 1.00, 'Overdue fine for 1 day', 'paid');
+
+-- Update book available quantities based on transactions
+UPDATE books b
+SET available_quantity = (
+    SELECT quantity - COUNT(t.transaction_id)
+    FROM transactions t
+    WHERE t.book_id = b.book_id 
+    AND t.status IN ('issued', 'overdue')
+    GROUP BY t.book_id
+)
+WHERE book_id IN (
+    SELECT DISTINCT book_id 
+    FROM transactions 
+    WHERE status IN ('issued', 'overdue')
+);
