@@ -268,7 +268,7 @@ require_once 'config.php';
                                 <li><a class="dropdown-item" href="<?= BASE_URL ?>/user/dashboard.php"><i class="fas fa-bookmark"></i> Dashboard</a></li>
                                 <li><a class="dropdown-item" href="#" id="dark-mode-toggle"><i class="fas fa-moon"></i> Dark Mode</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="?logout=true"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                                <li><a class="dropdown-item" href="<?= BASE_URL ?>/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                             </ul>
                         </li>
                     <?php else: ?>

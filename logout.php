@@ -40,6 +40,6 @@ setcookie('remember_token', '', time() - 3600, '/');
 
 // Redirect to login page with success message
 $_SESSION['success'] = "You have been logged out successfully.";
-header("Location: " . BASE_URL . "/login.php");
+header("Location: /lms/login.php");
 exit();
 ?>
