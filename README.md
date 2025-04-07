@@ -17,3 +17,7 @@ A PHP-based Library Management System using MySQL database. Includes:
 3. Run the project using XAMPP
 
  - authauthor Dilmi Senevirathna-
+
+ - ![Login](https://github.com/user-attachments/assets/0cffcf20-46a6-4e0c-baa4-1e857f33b61e)
+ - 
+
